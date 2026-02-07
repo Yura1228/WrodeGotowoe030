@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Login & Registration</title>
+<style>
+body {
+    font-family: 'Nunito Sans', sans-serif;
+    background-image: url('f15df32938cd28585b848529952a9075.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px; /* добавим отступ */
+}
+
+/* Контейнер для авторизации */
+#authContainer {
+    width: 100%;
+    max-width: 400px; /* максимум ширины */
+    background: rgba(255, 255, 255, 0.85);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    box-sizing: border-box; /* чтобы padding не влиял на ширину */
+}
+
+/* Общие стили для заголовка */
+h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+/* Формы и поля */
+.form-group {
+    margin-top: 10px;
+}
+input[type=text], input[type=email], input[type=password] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+button {
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #747474;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #444;
+}
+.switch-link {
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 14px;
+    color: #002b27;
+    cursor: pointer;
+}
+.switch-link:hover {
+    color: #008d7f;
+}
+
+/* Медиазапросы для улучшенной адаптивности */
+@media (max-width: 500px) {
+    #authContainer {
+        padding: 15px;
+        width: 100%;
+        max-width: 100%;
+    }
+}
+</style>
+</head>
+<body>
+
+<div id="authContainer">
+  <div id="loginForm">
+    <h2>Вход</h2>
+    <form onsubmit="return loginUser()">
+      <div class="form-group">
+        <input type="email" id="loginEmail" placeholder="Email" required />
+      </div>
+      <div class="form-group">
+        <input type="password" id="loginPassword" placeholder="Пароль" required />
+      </div>
+      <button type="submit">Войти</button>
+    </form>
+    <div class="switch-link" onclick="showRegister()">Нет аккаунта? Зарегистрироваться</div>
+    <div class="switch-link" onclick="showReset()">Забыли пароль?</div>
+  </div>
+
+  <div id="registerForm" style="display:none;">
+    <h2>Регистрация</h2>
+    <form onsubmit="return registerUser()">
+      <div class="form-group">
+        <input type="text" id="regUsername" placeholder="Имя пользователя" required />
+      </div>
+      <div class="form-group">
+        <input type="email" id="regEmail" placeholder="Email" required />
+      </div>
+      <div class="form-group">
+        <input type="password" id="regPassword" placeholder="Пароль" required />
+      </div>
+      <div class="form-group">
+        <input type="password" id="regConfirmPassword" placeholder="Повторите пароль" required />
+      </div>
+      <button type="submit">Зарегистрироваться</button>
+    </form>
+    <div class="switch-link" onclick="showLogin()">Уже есть аккаунт? Войти</div>
+  </div>
+
+  <div id="resetForm" style="display:none;">
+    <h2>Восстановление пароля</h2>
+    <form onsubmit="return resetPassword()">
+      <div class="form-group">
+        <input type="email" id="resetEmail" placeholder="Email" required />
+      </div>
+      <button type="submit">Показать пароль</button>
+    </form>
+    <div class="switch-link" onclick="showLogin()">Вернуться к входу</div>
+  </div>
+</div>
+
+<script>
+  // Переключение форм
+  function showLogin() {
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('resetForm').style.display = 'none';
+  }
+  function showRegister() {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+    document.getElementById('resetForm').style.display = 'none';
+  }
+  function showReset() {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('resetForm').style.display = 'block';
+  }
+
+  // Регистрация
+  function registerUser() {
+    const username = document.getElementById('regUsername').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+    if (password !== confirmPassword) {
+      alert('Пароли не совпадают');
+      return false;
+    }
+    if (password.length < 8) {
+      alert('Пароль должен содержать минимум 8 символов');
+      return false;
+    }
+
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+    if (users[email]) {
+      alert('Этот email уже зарегистрирован');
+      return false;
+    }
+
+    const encodedPassword = btoa(password);
+
+    users[email] = {
+      username: username,
+      email: email,
+      password: encodedPassword
+    };
+
+    localStorage.setItem('users', JSON.stringify(users));
+    alert('Регистрация прошла успешно! Войдите в систему.');
+    showLogin();
+    return false;
+  }
+
+  function loginUser() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+    if (users[email]) {
+      const storedPassword = atob(users[email].password);
+      if (storedPassword === password) {
+        alert('Успешный вход! Добро пожаловать, ' + users[email].username);
+        // Перенаправление на другую страницу после входа
+        window.location.href = 'index1.html'; // замените на нужный URL
+        return false;
+      }
+    }
+    alert('Неверный email или пароль');
+    return false;
+  }
+
+  function resetPassword() {
+    const email = document.getElementById('resetEmail').value.trim();
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+    if (users[email]) {
+      alert('Пароль: ' + atob(users[email].password));
+      showLogin();
+    } else {
+      alert('Email не найден');
+    }
+    return false;
+  }
+</script>
+</body>
+</html>
